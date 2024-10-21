@@ -1,0 +1,6 @@
+name: JBMines
+version: '1.0-SNAPSHOT'
+main: me.mortaldev.JBMines.Main
+api-version: '1.19'
+authors: [ MortalDev ]
+description: This is a plugin for JailBreakMC that helps manage and control the mines.
