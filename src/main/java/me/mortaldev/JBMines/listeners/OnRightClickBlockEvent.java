@@ -1,7 +1,6 @@
 package me.mortaldev.JBMines.listeners;
 
 import me.mortaldev.JBMines.Main;
-import me.mortaldev.JBMines.menus.MinesMenu;
 import me.mortaldev.JBMines.menus.mine.ConfigureMineMenu;
 import me.mortaldev.JBMines.modules.mine.Mine;
 import me.mortaldev.JBMines.modules.mine.MineManager;
@@ -63,9 +62,7 @@ public class OnRightClickBlockEvent implements Listener {
         player.sendMessage(TextUtil.format("&7Corner 1 set to " + location.getX() + ", " + location.getY() + ", "+ location.getZ() + ", "+ location.getWorld().getName()));
         player.sendMessage(TextUtil.format("&eRight-Click a block to set Corner 2."));
         player.sendMessage(TextUtil.format("&c[Click to Cancel]##cmd:/minegui cancelconfig", true));
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
-          pauseUsers.remove(uniqueId);
-        }, 10);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> pauseUsers.remove(uniqueId), 10);
       } else if (pair.first() == 2) {
         mine.setCornerOne(corners.get(uniqueId));
         mine.setCornerTwo(location);

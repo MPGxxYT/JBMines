@@ -17,7 +17,7 @@ import java.util.function.BiConsumer;
 
 public class Chamber implements CRUD.Identifiable {
 
-  private String id;
+  private final String id;
   private BlockFace chamberFacing;
   private Map<String, Object> chestLocation = new HashMap<>();
   // String is BlockData, List is all locations where the block should be.

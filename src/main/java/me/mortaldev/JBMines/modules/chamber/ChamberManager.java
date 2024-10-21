@@ -10,7 +10,7 @@ import java.util.Set;
 
 public enum ChamberManager {
   INSTANCE;
-  private Set<Chamber> chamberSet;
+  private final Set<Chamber> chamberSet;
 
   ChamberManager() {
     chamberSet = new HashSet<>();
