@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class Mine implements CRUD.Identifiable {
+  public static final int BATCH_SIZE = 10;
   private final String id;
   private Map<String, Object> mineSpawn = new HashMap<>();
   private Map<String, Object> cornerOne = new HashMap<>();
@@ -140,45 +141,74 @@ public class Mine implements CRUD.Identifiable {
     return Material.AIR;
   }
 
-  private Location getMineCenter(){
+  private Location getMineCenter() {
     return getCornerOne().add(getCornerTwo()).multiply(0.5);
   }
 
   public void getPlayersInMine(int extraRadius, Consumer<Player> consumer) {
-    double distance = getCornerOne().distance(getMineCenter()) + extraRadius;
-    for (Player player : getCornerOne().getWorld().getPlayers()) {
-      if (player.getLocation().distance(getMineCenter()) > distance) {
-        continue;
-      }
-      if (Utils.locationIsWithin(player.getLocation(), getCornerOne(), getCornerTwo())) {
-        consumer.accept(player);
-      }
+    if (getCornerOne() == null || getCornerTwo() == null) {
+      return;
     }
+    World world = getCornerOne().getWorld();
+    if (world == null) {
+      return;
+    }
+    Location center = getMineCenter();
+    double distanceSquared = Math.pow(getCornerOne().distance(center) + extraRadius, 2);
+    world.getPlayers().stream()
+        .filter(
+            player -> {
+              if (player == null) return false;
+              player.getLocation();
+              return true;
+            })
+        .filter(player -> player.getLocation().distanceSquared(center) < distanceSquared)
+        .filter(
+            player -> Utils.locationIsWithin(player.getLocation(), getCornerOne(), getCornerTwo()))
+        .forEach(consumer);
   }
 
   public void reset() {
+    if (getCornerOne().getWorld() == null
+        || getCornerTwo().getWorld() == null
+        || blockPalette.size() == 0) {
+      return;
+    }
     World world = getCornerOne().getWorld();
-    getPlayersInMine(0, (player) -> {
-      Location mineSpawn = getMineSpawn();
-      if (mineSpawn.getWorld() != null) {
-        player.teleport(mineSpawn);
-      }
-    });
-    getMineBlocks(
-        (vector ->
-            Bukkit.getScheduler()
-                .scheduleSyncDelayedTask(
-                    Main.getInstance(),
-                    () -> {
-                      Block block =
-                          world.getBlockAt(
-                              vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
-                      Material material = getWinningMaterial();
-                      BlockData newBlockData = Bukkit.getServer().createBlockData(material);
-                      if (block.getType() != material) {
-                        block.setBlockData(newBlockData, false);
-                      }
-                    })));
+    getPlayersInMine(
+        0,
+        (player) -> {
+          Location mineSpawn = getMineSpawn();
+          if (mineSpawn.getWorld() != null) {
+            player.teleport(mineSpawn);
+          }
+        });
+    // Process the blocks in batches to reduce lag
+    // Batch size is controlled by an external config
+    List<Vector> blockList = new ArrayList<>();
+    getMineBlocks(blockList::add);
+
+    int batches = (int) Math.ceil((double) blockList.size() / BATCH_SIZE);
+    for (int i = 0; i < batches; i++) {
+      int start = i * BATCH_SIZE;
+      int end = Math.min(start + BATCH_SIZE, blockList.size());
+      List<Vector> batch = blockList.subList(start, end);
+
+      Bukkit.getScheduler()
+          .scheduleSyncDelayedTask(
+              Main.getInstance(),
+              () -> {
+                for (Vector vector : batch) {
+                  Block block =
+                      world.getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
+                  Material material = getWinningMaterial();
+                  BlockData newBlockData = Bukkit.getServer().createBlockData(material);
+                  if (block.getType() != material) {
+                    block.setBlockData(newBlockData, false);
+                  }
+                }
+              });
+    }
     blocksLeft = totalSize;
     Main.log("Reset " + this.id);
     resetType.start(this);
@@ -278,7 +308,7 @@ public class Mine implements CRUD.Identifiable {
           add("&fResets in:&7 " + timer.getTimeLeft().getSeconds() + "s");
         } else if (resetType instanceof Percent percent) {
           add("&fResets at:&7 " + percent.getResetPercentage() + "%");
-        } else if(resetType instanceof Combo combo){
+        } else if (resetType instanceof Combo combo) {
           add("&fResets in:&7 " + combo.getTimer().getTimeLeft().getSeconds() + "s");
           add("&fResets at:&7 " + combo.getPercent().getResetPercentage() + "%");
         }
@@ -286,7 +316,9 @@ public class Mine implements CRUD.Identifiable {
         if (!blockPalette.getTable().isEmpty()) {
           add("");
           getBlockPalette()
-              .forEach((key, value) -> add("&f - &e" + value + "% &f" + Utils.itemName(key)));
+              .forEach(
+                  (key, value) ->
+                      add("&f - &e" + value.doubleValue() + "% &f" + Utils.itemName(key)));
         }
       }
     };

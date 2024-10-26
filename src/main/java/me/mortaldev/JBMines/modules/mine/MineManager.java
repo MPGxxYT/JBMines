@@ -41,14 +41,14 @@ public enum MineManager {
     }
   }
 
-  public Set<Mine> getMineSet() {
+  public synchronized Set<Mine> getMineSet() {
     if (mineSet == null) {
       loadMinesFromFile();
     }
     return mineSet;
   }
 
-  public Mine getMine(String id) {
+  public synchronized Mine getMine(String id) {
     for (Mine mine : getMineSet()) {
       if (mine.getID().equals(TextUtil.fileFormat(id))) {
         return mine;
@@ -66,7 +66,7 @@ public enum MineManager {
     return false;
   }
 
-  public boolean addMine(Mine mine) {
+  public synchronized boolean addMine(Mine mine) {
     if (mineByIdExists(mine.getID())) {
       return false;
     }
@@ -75,16 +75,18 @@ public enum MineManager {
     return true;
   }
 
-  public void updateMine(Mine mine) {
-    for (Mine mineIteration : getMineSet()) {
-      if (mineIteration.getID().equals(TextUtil.fileFormat(mine.getID()))) {
-        mineSet.remove(mineIteration);
-        mineSet.add(mine);
-      }
+  public synchronized void updateMine(Mine mine) {
+    removeMine(mine);
+    addMine(mine);
+  }
+
+  private synchronized void removeMine(Mine mine){
+    if (mineByIdExists(mine.getID())) {
+      mineSet.remove(mine);
     }
   }
 
-  public void deleteMine(Mine mine) {
+  public synchronized void deleteMine(Mine mine) {
     if (mineByIdExists(mine.getID())) {
       mineSet.remove(mine);
       mine.delete();

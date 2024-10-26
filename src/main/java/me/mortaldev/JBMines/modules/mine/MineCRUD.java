@@ -24,9 +24,8 @@ public class MineCRUD extends CRUD<Mine> {
   }
 
   protected Optional<Mine> getData(String id) {
-    HashMap<Class<?>, Object> typeAdapterHashMap = new HashMap<>(){{
-      put(ResetType.class, new ResetTypeDeserializer());
-    }};
+    HashMap<Class<?>, Object> typeAdapterHashMap = new HashMap<>();
+    typeAdapterHashMap.put(ResetType.class, new ResetTypeDeserializer());
     return super.getData(id, Mine.class, typeAdapterHashMap);
-    }
+  }
 }
