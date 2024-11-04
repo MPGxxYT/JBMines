@@ -45,11 +45,13 @@ public final class Main extends JavaPlugin {
     // DATA FOLDER
 
     if (!getDataFolder().exists()) {
-      getDataFolder().mkdir();
+      if (!getDataFolder().mkdir()) {
+        log("FAILED TO CREATE DATA FOLDER!");
+      }
     }
 
-    MineManager.INSTANCE.loadMinesFromFile();
-    ChamberManager.INSTANCE.loadChambersFromFile();
+    MineManager.getInstance().load();
+    ChamberManager.getInstance().load();
 
     // DEPENDENCIES
 

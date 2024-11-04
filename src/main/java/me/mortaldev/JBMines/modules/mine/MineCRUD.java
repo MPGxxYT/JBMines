@@ -6,26 +6,33 @@ import me.mortaldev.JBMines.modules.reset.ResetTypeDeserializer;
 import me.mortaldev.crudapi.CRUD;
 
 import java.util.HashMap;
-import java.util.Optional;
 
 public class MineCRUD extends CRUD<Mine> {
 
-  private static class Singleton {
-    private static final MineCRUD MINE_CRUD_INSTANCE = new MineCRUD();
+  private static final class SingletonHolder {
+    private static final MineCRUD INSTANCE = new MineCRUD();
   }
 
-  public static MineCRUD getInstance(){
-    return Singleton.MINE_CRUD_INSTANCE;
+  public static MineCRUD getInstance() {
+    return SingletonHolder.INSTANCE;
+  }
+
+  private MineCRUD() {}
+
+  @Override
+  public Class<Mine> getClazz() {
+    return Mine.class;
+  }
+
+  @Override
+  public HashMap<Class<?>, Object> getTypeAdapterHashMap() {
+    return new HashMap<>() {{
+      put(ResetType.class, new ResetTypeDeserializer());
+    }};
   }
 
   @Override
   public String getPath() {
     return Main.getInstance().getDataFolder().getAbsolutePath()+"/mines/";
-  }
-
-  protected Optional<Mine> getData(String id) {
-    HashMap<Class<?>, Object> typeAdapterHashMap = new HashMap<>();
-    typeAdapterHashMap.put(ResetType.class, new ResetTypeDeserializer());
-    return super.getData(id, Mine.class, typeAdapterHashMap);
   }
 }

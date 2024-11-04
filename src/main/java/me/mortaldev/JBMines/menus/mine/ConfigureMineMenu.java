@@ -104,9 +104,9 @@ public class ConfigureMineMenu extends InventoryGUI {
                 item.addLore("&cNot Set");
               } else {
                 item.addLore("&f X: &7" + mineSpawn.getBlockX())
-                .addLore("&f Y: &7" + mineSpawn.getBlockY())
-                .addLore("&f Z: &7" + mineSpawn.getBlockZ())
-                .addLore("&f World: &7" + mineSpawn.getWorld().getName());
+                    .addLore("&f Y: &7" + mineSpawn.getBlockY())
+                    .addLore("&f Z: &7" + mineSpawn.getBlockZ())
+                    .addLore("&f World: &7" + mineSpawn.getWorld().getName());
               }
               return item.addLore().addLore("&7[Click to Set]").build();
             })
@@ -116,7 +116,7 @@ public class ConfigureMineMenu extends InventoryGUI {
               Location location = player.getLocation();
               mine.setMineSpawn(location);
               mine.save();
-              MineManager.INSTANCE.updateMine(mine);
+              MineManager.getInstance().update(mine);
               player.sendMessage(
                   TextUtil.format(
                       "&e&l"

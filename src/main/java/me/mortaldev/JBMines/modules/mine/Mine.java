@@ -54,7 +54,7 @@ public class Mine implements CRUD.Identifiable {
   }
 
   public Optional<Chamber> getChamber() {
-    return ChamberManager.INSTANCE.getChamber(chamberID);
+    return ChamberManager.getInstance().getByID(chamberID);
   }
 
   public void setChamber(String chamberID) {

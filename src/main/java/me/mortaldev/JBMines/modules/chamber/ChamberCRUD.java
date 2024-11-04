@@ -3,7 +3,7 @@ package me.mortaldev.JBMines.modules.chamber;
 import me.mortaldev.JBMines.Main;
 import me.mortaldev.crudapi.CRUD;
 
-import java.util.Optional;
+import java.util.HashMap;
 
 public class ChamberCRUD extends CRUD<Chamber> {
 
@@ -16,11 +16,19 @@ public class ChamberCRUD extends CRUD<Chamber> {
   }
 
   @Override
+  public Class<Chamber> getClazz() {
+    return Chamber.class;
+  }
+
+  @Override
+  public HashMap<Class<?>, Object> getTypeAdapterHashMap() {
+    return new HashMap<>();
+  }
+
+  @Override
   public String getPath() {
     return Main.getInstance().getDataFolder().getAbsolutePath()+"/chambers/";
   }
 
-  protected Optional<Chamber> getData(String id) {
-    return super.getData(id, Chamber.class);
-  }
+
 }

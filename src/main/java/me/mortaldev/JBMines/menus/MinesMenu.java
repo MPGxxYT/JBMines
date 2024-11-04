@@ -25,7 +25,7 @@ public class MinesMenu extends InventoryGUI {
   Set<Mine> mines;
 
   public MinesMenu() {
-    this.mines = MineManager.INSTANCE.getMineSet();
+    this.mines = MineManager.getInstance().getSet();
   }
 
   private Integer getInventorySize() {
@@ -80,7 +80,7 @@ public class MinesMenu extends InventoryGUI {
                         if (slot == 2) {
                           String textEntry = stateSnapshot.getText();
                           Mine mine = new Mine(textEntry);
-                          MineManager.INSTANCE.addMine(mine);
+                          MineManager.getInstance().add(mine);
                           Main.getGuiManager().openGUI(new MinesMenu(), player);
                         }
                         return Collections.emptyList();
@@ -111,7 +111,7 @@ public class MinesMenu extends InventoryGUI {
             event -> {
               Player player = (Player) event.getWhoClicked();
               if (event.getClick() == ClickType.RIGHT) {
-                MineManager.INSTANCE.deleteMine(mine);
+                MineManager.getInstance().remove(mine);
                 Main.getGuiManager().openGUI(new MinesMenu(), player);
               } else if (event.getClick() == ClickType.MIDDLE) {
                 mine.reset();

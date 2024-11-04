@@ -15,6 +15,7 @@ import me.mortaldev.JBMines.modules.mine.MineManager;
 import me.mortaldev.JBMines.utils.TextUtil;
 import org.bukkit.entity.Player;
 
+@SuppressWarnings("unused")
 @CommandAlias("minegui|mg")
 public class MineGUICommand extends BaseCommand {
 
@@ -27,8 +28,8 @@ public class MineGUICommand extends BaseCommand {
   @Subcommand("reload")
   @CommandPermission("jbmines.admin")
   public void reload(final Player player) {
-    MineManager.INSTANCE.loadMinesFromFile();
-    ChamberManager.INSTANCE.loadChambersFromFile();
+    MineManager.getInstance().load();
+    ChamberManager.getInstance().load();
     player.sendMessage("Reloaded.");
   }
 

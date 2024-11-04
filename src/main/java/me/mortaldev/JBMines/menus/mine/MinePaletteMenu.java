@@ -77,7 +77,7 @@ public class MinePaletteMenu extends InventoryGUI {
                 return;
               }
               mine.save();
-              MineManager.INSTANCE.updateMine(mine);
+              MineManager.getInstance().update(mine);
               Main.getGuiManager().openGUI(new MinePaletteMenu(mine), player);
             });
   }
@@ -100,7 +100,7 @@ public class MinePaletteMenu extends InventoryGUI {
               Player player = (Player) event.getWhoClicked();
               if (mine.getBlockPaletteRaw().balanceTable()) {
                 mine.save();
-                MineManager.INSTANCE.updateMine(mine);
+                MineManager.getInstance().update(mine);
                 Main.getGuiManager().openGUI(new MinePaletteMenu(mine), player);
               }
             });
@@ -153,7 +153,7 @@ public class MinePaletteMenu extends InventoryGUI {
                                 Main.log("Failed to update block: " + pair.first().toString());
                               }
                               mine.save();
-                              MineManager.INSTANCE.updateMine(mine);
+                              MineManager.getInstance().update(mine);
                             }
                           }
                           Main.getGuiManager().openGUI(new MinePaletteMenu(mine), player);
@@ -163,7 +163,7 @@ public class MinePaletteMenu extends InventoryGUI {
               } else if (event.getClick() == ClickType.RIGHT) {
                 mine.removeBlockFromPalette(pair.first());
                 mine.save();
-                MineManager.INSTANCE.updateMine(mine);
+                MineManager.getInstance().update(mine);
                 Main.getGuiManager().openGUI(new MinePaletteMenu(mine), player);
               }
             });
