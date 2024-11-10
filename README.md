@@ -1,6 +1,6 @@
 I'll have a more detailed readme later, atm its a todo list:
 
-``
+```
 Mine Config:
  - Corner 1 & 2 *
  - Mine Spawn Location *
@@ -22,5 +22,5 @@ Mine Config:
   ~ Percent
   ~ Combo
   ~ Sync
-``
+```
 
