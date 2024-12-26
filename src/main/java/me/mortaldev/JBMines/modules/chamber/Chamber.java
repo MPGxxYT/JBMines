@@ -22,7 +22,7 @@ public class Chamber implements CRUD.Identifiable {
   private Map<String, Object> chestLocation = new HashMap<>();
   // String is BlockData, List is all locations where the block should be.
   private HashMap<String, Set<Vector>> blockList = new HashMap<>();
-  private ChanceMap<String> lootTable = new ChanceMap<String>();
+  private ChanceMap<String> lootTable = new ChanceMap<>();
 
   public Chamber(String id) {
     this.id = id;
@@ -84,6 +84,13 @@ public class Chamber implements CRUD.Identifiable {
     blockList.computeIfAbsent(blockDataAsString, k -> new HashSet<>()).add(vector);
   }
 
+  /**
+   * Applies the given {@code blockDataConsumer} to all entries in the block list.
+   * The consumer is given the {@link BlockData} and the set of all locations where
+   * the block should be.
+   *
+   * @param blockDataConsumer the consumer to apply to all entries in the block list
+   */
   public void processBlockList(BiConsumer<BlockData, Set<Vector>> blockDataConsumer) {
     for (Map.Entry<String, Set<Vector>> entry : blockList.entrySet()) {
       BlockData blockData = Bukkit.createBlockData(entry.getKey());

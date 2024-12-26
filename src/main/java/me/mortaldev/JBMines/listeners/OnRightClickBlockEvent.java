@@ -1,5 +1,9 @@
 package me.mortaldev.JBMines.listeners;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import me.mortaldev.JBMines.Main;
 import me.mortaldev.JBMines.menus.mine.ConfigureMineMenu;
 import me.mortaldev.JBMines.modules.mine.Mine;
@@ -14,11 +18,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
 public class OnRightClickBlockEvent implements Listener {
 

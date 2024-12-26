@@ -26,12 +26,15 @@ public class MainMenu extends InventoryGUI {
   private InventoryButton MinesButton() {
     return new InventoryButton()
         .creator(
-            player -> ItemStackHelper.builder(Material.COBBLESTONE).name("&6&lMines").addLore("&7Click to view your mines.").build())
+            player ->
+                ItemStackHelper.builder(Material.COBBLESTONE)
+                    .name("&6&lMines")
+                    .addLore("&7Click to view your mines.")
+                    .build())
         .consumer(
             event -> {
               Player player = (Player) event.getWhoClicked();
               Main.getGuiManager().openGUI(new MinesMenu(), player);
             });
   }
-
 }

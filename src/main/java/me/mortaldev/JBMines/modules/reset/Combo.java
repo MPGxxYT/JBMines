@@ -15,8 +15,16 @@ public class Combo extends ResetType {
     return percent;
   }
 
+  public void setPercent(Percent percent) {
+    this.percent = percent;
+  }
+
   public Timer getTimer() {
     return timer;
+  }
+
+  public void setTimer(Timer timer) {
+    this.timer = timer;
   }
 
   @Override
@@ -26,5 +34,13 @@ public class Combo extends ResetType {
 
   @Override
   public void start(Mine mine) {
+    timer.start(mine);
+    percent.start(mine);
+  }
+
+  @Override
+  public void kill(Mine mine) {
+    timer.kill(mine);
+    percent.kill(mine);
   }
 }

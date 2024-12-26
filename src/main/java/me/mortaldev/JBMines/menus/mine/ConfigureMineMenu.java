@@ -1,5 +1,6 @@
 package me.mortaldev.JBMines.menus.mine;
 
+import java.util.Collections;
 import me.mortaldev.JBMines.Main;
 import me.mortaldev.JBMines.modules.mine.Mine;
 import me.mortaldev.JBMines.modules.mine.MineManager;
@@ -7,6 +8,7 @@ import me.mortaldev.JBMines.utils.ItemStackHelper;
 import me.mortaldev.JBMines.utils.TextUtil;
 import me.mortaldev.menuapi.InventoryButton;
 import me.mortaldev.menuapi.InventoryGUI;
+import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -31,9 +33,11 @@ public class ConfigureMineMenu extends InventoryGUI {
   public void decorate(Player player) {
     addButton(27, BackButton());
     addButton(15, SetSpawnButton());
+    addButton(13, DisplayNameButton());
     addButton(11, ConfigureCornersButton());
-    ItemStack whiteGlass = ItemStackHelper.builder(Material.WHITE_STAINED_GLASS_PANE).name("").build();
-    for(int i = 28; i < 36; i++) {
+    ItemStack whiteGlass =
+        ItemStackHelper.builder(Material.WHITE_STAINED_GLASS_PANE).name("").build();
+    for (int i = 28; i < 36; i++) {
       getInventory().setItem(i, whiteGlass);
     }
     super.decorate(player);
@@ -129,6 +133,41 @@ public class ConfigureMineMenu extends InventoryGUI {
                           + location.getBlockZ()
                           + "&f, &7"
                           + location.getWorld().getName()));
+              Main.getGuiManager().openGUI(new ConfigureMineMenu(mine), player);
+            });
+  }
+
+  private InventoryButton DisplayNameButton() {
+    return new InventoryButton()
+        .creator(
+            player ->
+                ItemStackHelper.builder(Material.NAME_TAG)
+                    .name("&e&lDisplay Name")
+                    .addLore("&f" + mine.getDisplayName())
+                    .addLore()
+                    .addLore("&7[Click to Change]")
+                    .build())
+        .consumer(
+            event -> {
+              Player player = (Player) event.getWhoClicked();
+              new AnvilGUI.Builder()
+                  .plugin(Main.getInstance())
+                  .title("Display Name")
+                  .itemLeft(
+                      ItemStackHelper.builder(Material.NAME_TAG)
+                          .name(mine.getDisplayName())
+                          .build())
+                  .onClick(
+                      (slot, stateSnapshot) -> {
+                        if (slot == 2) {
+                          String textEntry = stateSnapshot.getText();
+                          mine.setDisplayName(textEntry);
+                          MineManager.getInstance().update(mine);
+                          Main.getGuiManager().openGUI(new ConfigureMineMenu(mine), player);
+                        }
+                        return Collections.emptyList();
+                      })
+                  .open(player);
             });
   }
 

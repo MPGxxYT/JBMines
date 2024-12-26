@@ -1,11 +1,10 @@
 package me.mortaldev.JBMines.modules.mine;
 
+import java.util.HashMap;
 import me.mortaldev.JBMines.Main;
 import me.mortaldev.JBMines.modules.reset.ResetType;
 import me.mortaldev.JBMines.modules.reset.ResetTypeDeserializer;
 import me.mortaldev.crudapi.CRUD;
-
-import java.util.HashMap;
 
 public class MineCRUD extends CRUD<Mine> {
 
@@ -26,13 +25,15 @@ public class MineCRUD extends CRUD<Mine> {
 
   @Override
   public HashMap<Class<?>, Object> getTypeAdapterHashMap() {
-    return new HashMap<>() {{
-      put(ResetType.class, new ResetTypeDeserializer());
-    }};
+    return new HashMap<>() {
+      {
+        put(ResetType.class, new ResetTypeDeserializer());
+      }
+    };
   }
 
   @Override
   public String getPath() {
-    return Main.getInstance().getDataFolder().getAbsolutePath()+"/mines/";
+    return Main.getInstance().getDataFolder().getAbsolutePath() + "/mines/";
   }
 }

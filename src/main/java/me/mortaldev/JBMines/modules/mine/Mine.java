@@ -1,5 +1,11 @@
 package me.mortaldev.JBMines.modules.mine;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import me.mortaldev.JBMines.Main;
 import me.mortaldev.JBMines.listeners.OnRightClickBlockEvent;
 import me.mortaldev.JBMines.modules.ChanceMap;
@@ -14,27 +20,17 @@ import me.mortaldev.JBMines.utils.ItemStackHelper;
 import me.mortaldev.JBMines.utils.TextUtil;
 import me.mortaldev.JBMines.utils.Utils;
 import me.mortaldev.crudapi.CRUD;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-
-public class Mine implements CRUD.Identifiable {
-  public static final int BATCH_SIZE = 10;
+public class Mine extends MineReset implements CRUD.Identifiable {
   private final String id;
+  private String displayName;
   private Map<String, Object> mineSpawn = new HashMap<>();
   private Map<String, Object> cornerOne = new HashMap<>();
   private Map<String, Object> cornerTwo = new HashMap<>();
@@ -46,11 +42,24 @@ public class Mine implements CRUD.Identifiable {
 
   public Mine(String id) {
     this.id = TextUtil.fileFormat(id);
+    this.displayName = TextUtil.fileFormat(id);
     addBlockToPalette(new ItemStack(Material.COBBLESTONE));
+  }
+
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
+
+  public String getDisplayName() {
+    return displayName;
   }
 
   public ResetType getResetType() {
     return resetType;
+  }
+
+  public void setResetType(ResetType resetType) {
+    this.resetType = resetType;
   }
 
   public Optional<Chamber> getChamber() {
@@ -127,20 +136,6 @@ public class Mine implements CRUD.Identifiable {
     blockPalette.remove(material, true);
   }
 
-  private Material getWinningMaterial() {
-    double generatedNumber = ThreadLocalRandom.current().nextDouble(0.00, 100.00);
-    getBlockPaletteRaw().sort();
-    LinkedHashMap<Material, BigDecimal> reversedBlockPalette = Utils.reverseMap(getBlockPalette());
-    BigDecimal total = BigDecimal.ZERO;
-    for (Map.Entry<Material, BigDecimal> entry : reversedBlockPalette.entrySet()) {
-      total = total.add(entry.getValue());
-      if (BigDecimal.valueOf(generatedNumber).compareTo(total) < 0) {
-        return entry.getKey();
-      }
-    }
-    return Material.AIR;
-  }
-
   private Location getMineCenter() {
     return getCornerOne().add(getCornerTwo()).multiply(0.5);
   }
@@ -168,50 +163,17 @@ public class Mine implements CRUD.Identifiable {
         .forEach(consumer);
   }
 
-  public void reset() {
-    if (getCornerOne().getWorld() == null
-        || getCornerTwo().getWorld() == null
-        || blockPalette.size() == 0) {
-      return;
+  public Boolean locationIsInMine(Location location) {
+    if (location == null) return null;
+    if (getCornerOne().getWorld() != location.getWorld()) {
+      return false;
     }
-    World world = getCornerOne().getWorld();
-    getPlayersInMine(
-        0,
-        (player) -> {
-          Location mineSpawn = getMineSpawn();
-          if (mineSpawn.getWorld() != null) {
-            player.teleport(mineSpawn);
-          }
-        });
-    // Process the blocks in batches to reduce lag
-    // Batch size is controlled by an external config
-    List<Vector> blockList = new ArrayList<>();
-    getMineBlocks(blockList::add);
+    return Utils.locationIsWithin(location, getCornerOne(), getCornerTwo());
+  }
 
-    int batches = (int) Math.ceil((double) blockList.size() / BATCH_SIZE);
-    for (int i = 0; i < batches; i++) {
-      int start = i * BATCH_SIZE;
-      int end = Math.min(start + BATCH_SIZE, blockList.size());
-      List<Vector> batch = blockList.subList(start, end);
-
-      Bukkit.getScheduler()
-          .scheduleSyncDelayedTask(
-              Main.getInstance(),
-              () -> {
-                for (Vector vector : batch) {
-                  Block block =
-                      world.getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
-                  Material material = getWinningMaterial();
-                  BlockData newBlockData = Bukkit.getServer().createBlockData(material);
-                  if (block.getType() != material) {
-                    block.setBlockData(newBlockData, false);
-                  }
-                }
-              });
-    }
-    blocksLeft = totalSize;
-    Main.log("Reset " + this.id);
-    resetType.start(this);
+  public void adjustBlocksLeft(int amount) {
+    this.blocksLeft += amount;
+    Main.log(blocksLeft + " blocks left.");
   }
 
   public void configureCorners(Player player) {
@@ -254,6 +216,10 @@ public class Mine implements CRUD.Identifiable {
     totalSize = getCalculatedSize();
   }
 
+  public void resetBlocksLeft() {
+    blocksLeft = totalSize;
+  }
+
   private int getCalculatedSize() {
     Vector difference =
         getCornerOne().clone().subtract(getCornerTwo()).toBlockLocation().toVector();
@@ -276,6 +242,13 @@ public class Mine implements CRUD.Identifiable {
     return count.get();
   }
 
+  public BigDecimal getPercentLeft() {
+    if (blocksLeft == 0) return BigDecimal.ZERO;
+    return BigDecimal.valueOf(100)
+        .multiply(BigDecimal.valueOf(blocksLeft), MathContext.DECIMAL128)
+        .divide(BigDecimal.valueOf(getTotalSize()), 2, RoundingMode.HALF_UP);
+  }
+
   // Display Methods
 
   public ItemStack getDisplayItemStack() {
@@ -296,23 +269,27 @@ public class Mine implements CRUD.Identifiable {
   }
 
   public List<String> getDisplayLore() {
-    int percentBlocksLeft = 100;
-    if (getTotalSize() > 0) {
-      percentBlocksLeft = (1 - (blocksLeft / getTotalSize())) * 100;
-    }
-    int finalPercentBlocksLeft = percentBlocksLeft;
     return new ArrayList<>() {
       {
         add("&fID:&7 " + id);
+        add("&fDisplay Name:&7 " + displayName);
         if (resetType instanceof Timer timer) {
-          add("&fResets in:&7 " + timer.getTimeLeft().getSeconds() + "s");
+          if (isResetting()) {
+            add("&fResets in:&7 " + getCountdown() + "s");
+          } else {
+            add("&fResets in:&7 " + timer.getTimeLeft().getSeconds() + "s");
+          }
         } else if (resetType instanceof Percent percent) {
           add("&fResets at:&7 " + percent.getResetPercentage() + "%");
         } else if (resetType instanceof Combo combo) {
-          add("&fResets in:&7 " + combo.getTimer().getTimeLeft().getSeconds() + "s");
+          if (isResetting()) {
+            add("&fResets in:&7 " + getCountdown() + "s");
+          } else {
+            add("&fResets in:&7 " + combo.getTimer().getTimeLeft().getSeconds() + "s");
+          }
           add("&fResets at:&7 " + combo.getPercent().getResetPercentage() + "%");
         }
-        add("&fBlocks Left:&7 " + finalPercentBlocksLeft + "%");
+        add("&fBlocks Left:&7 " + getPercentLeft().toPlainString() + "%");
         if (!blockPalette.getTable().isEmpty()) {
           add("");
           getBlockPalette()
@@ -337,5 +314,10 @@ public class Mine implements CRUD.Identifiable {
   @Override
   public String getID() {
     return id;
+  }
+
+  @Override
+  Mine getMine() {
+    return this;
   }
 }

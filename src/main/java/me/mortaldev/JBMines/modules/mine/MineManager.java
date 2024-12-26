@@ -25,4 +25,10 @@ public class MineManager extends CRUDManager<Mine> {
   public void log(String string) {
     Main.log(string);
   }
+
+  public void resetAllMines() {
+    for (Mine mine : getSet()) {
+      mine.reset();
+    }
+  }
 }

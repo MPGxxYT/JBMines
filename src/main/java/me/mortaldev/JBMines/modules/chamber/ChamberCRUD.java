@@ -1,9 +1,8 @@
 package me.mortaldev.JBMines.modules.chamber;
 
+import java.util.HashMap;
 import me.mortaldev.JBMines.Main;
 import me.mortaldev.crudapi.CRUD;
-
-import java.util.HashMap;
 
 public class ChamberCRUD extends CRUD<Chamber> {
 

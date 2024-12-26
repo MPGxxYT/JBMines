@@ -22,7 +22,7 @@ public class MineGUICommand extends BaseCommand {
   @Default
   @CommandPermission("jbmines.admin")
   public void openMenu(final Player player) {
-     Main.getGuiManager().openGUI(new MainMenu(), player);
+    Main.getGuiManager().openGUI(new MainMenu(), player);
   }
 
   @Subcommand("reload")

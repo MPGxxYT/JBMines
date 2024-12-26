@@ -6,7 +6,8 @@ import java.lang.reflect.Type;
 
 public class ResetTypeDeserializer implements JsonDeserializer<ResetType> {
   @Override
-  public ResetType deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
+  public ResetType deserialize(JsonElement json, Type type, JsonDeserializationContext context)
+      throws JsonParseException {
     JsonObject jsonObject = json.getAsJsonObject();
     if (jsonObject.has("lengthOfTime")) {
       return context.deserialize(json, Timer.class);

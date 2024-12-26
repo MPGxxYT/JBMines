@@ -2,6 +2,7 @@ package me.mortaldev.JBMines;
 
 import co.aikar.commands.PaperCommandManager;
 import me.mortaldev.JBMines.commands.MineGUICommand;
+import me.mortaldev.JBMines.listeners.OnBreakInMineEvent;
 import me.mortaldev.JBMines.listeners.OnRightClickBlockEvent;
 import me.mortaldev.JBMines.modules.chamber.ChamberManager;
 import me.mortaldev.JBMines.modules.mine.MineManager;
@@ -14,10 +15,10 @@ public final class Main extends JavaPlugin {
 
   private static final String LABEL = "JBMines";
   static Main instance;
-//  static HashSet<String> dependencies = new HashSet<>() {{
-//    add("GangsPlus");
-//    add("Skript");
-//  }};
+  //  static HashSet<String> dependencies = new HashSet<>() {{
+  //    add("GangsPlus");
+  //    add("Skript");
+  //  }};
   static PaperCommandManager commandManager;
   static GUIManager guiManager;
 
@@ -55,19 +56,19 @@ public final class Main extends JavaPlugin {
 
     // DEPENDENCIES
 
-//    for (String plugin : dependencies) {
-//      if (Bukkit.getPluginManager().getPlugin(plugin) == null) {
-//        getLogger().warning("Could not find " + plugin + "! This plugin is required.");
-//        Bukkit.getPluginManager().disablePlugin(this);
-//        return;
-//      }
-//    }
+    //    for (String plugin : dependencies) {
+    //      if (Bukkit.getPluginManager().getPlugin(plugin) == null) {
+    //        getLogger().warning("Could not find " + plugin + "! This plugin is required.");
+    //        Bukkit.getPluginManager().disablePlugin(this);
+    //        return;
+    //      }
+    //    }
 
     // CONFIGS
-//    mainConfig = new MainConfig();
+    //    mainConfig = new MainConfig();
 
     // Managers (Loading data)
-//    GangManager.loadGangDataList();
+    //    GangManager.loadGangDataList();
     // GUI Manager
     guiManager = new GUIManager();
     GUIListener guiListener = new GUIListener(guiManager);
@@ -76,17 +77,19 @@ public final class Main extends JavaPlugin {
     // Events
 
     getServer().getPluginManager().registerEvents(new OnRightClickBlockEvent(), this);
+    getServer().getPluginManager().registerEvents(new OnBreakInMineEvent(), this);
 
     // COMMANDS
 
     commandManager.registerCommand(new MineGUICommand());
 
     getLogger().info(LABEL + " Enabled");
+
+    MineManager.getInstance().resetAllMines();
   }
 
   @Override
   public void onDisable() {
     getLogger().info(LABEL + " Disabled");
   }
-
 }

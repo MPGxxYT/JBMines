@@ -43,8 +43,9 @@ public class MinePaletteMenu extends InventoryGUI {
       addButton(i, BlockButton(new Pair<>(entry.getKey(), entry.getValue())));
       i++;
     }
-    ItemStack whiteGlass = ItemStackHelper.builder(Material.WHITE_STAINED_GLASS_PANE).name("").build();
-    for(int j = 45; j < 54; j++) {
+    ItemStack whiteGlass =
+        ItemStackHelper.builder(Material.WHITE_STAINED_GLASS_PANE).name("").build();
+    for (int j = 45; j < 54; j++) {
       getInventory().setItem(j, whiteGlass);
     }
     addButton(45, BackButton());
@@ -52,7 +53,6 @@ public class MinePaletteMenu extends InventoryGUI {
     addButton(49, AddBlockButton());
     super.decorate(player);
   }
-
 
   private InventoryButton AddBlockButton() {
     return new InventoryButton()
@@ -91,7 +91,7 @@ public class MinePaletteMenu extends InventoryGUI {
                     .addLore("&7Will balance the percents")
                     .addLore("&7to have a sum of 100%")
                     .addLore("")
-                    .addLore("&eTotal: " + mine.getBlockPaletteRaw().getTotal() +"%")
+                    .addLore("&eTotal: " + mine.getBlockPaletteRaw().getTableSum() + "%")
                     .addLore("")
                     .addLore("&7[Click to Balance]")
                     .build())
@@ -109,18 +109,14 @@ public class MinePaletteMenu extends InventoryGUI {
   /**
    * Returns a button for a block in the palette.
    *
-   * <p>
-   * The button will display the block's material and the percent of the mine that
-   * block makes up. When clicked, the button will open an anvil gui with the
-   * percent of the mine displayed as a string, and the player can enter a new
-   * percent.
+   * <p>The button will display the block's material and the percent of the mine that block makes
+   * up. When clicked, the button will open an anvil gui with the percent of the mine displayed as a
+   * string, and the player can enter a new percent.
    *
-   * <p>
-   * When the anvil gui is submitted, the block's percent in the mine will be
-   * updated to the entered value, and the gui will be re-opened.
+   * <p>When the anvil gui is submitted, the block's percent in the mine will be updated to the
+   * entered value, and the gui will be re-opened.
    *
-   * <p>
-   * When right-clicked, the block will be removed from the palette.
+   * <p>When right-clicked, the block will be removed from the palette.
    *
    * @param pair the pair of material and percent of the block
    * @return the button
@@ -142,14 +138,16 @@ public class MinePaletteMenu extends InventoryGUI {
                 new AnvilGUI.Builder()
                     .plugin(Main.getInstance())
                     .title("Percent")
-                    .itemLeft(ItemStackHelper.builder(Material.PAPER).name(pair.second().doubleValue()+"").build())
+                    .itemLeft(
+                        ItemStackHelper.builder(Material.PAPER)
+                            .name(pair.second().doubleValue() + "")
+                            .build())
                     .onClick(
                         (slot, stateSnapshot) -> {
                           if (slot == 2) {
                             String textEntry = stateSnapshot.getText();
                             if (textEntry.trim().matches("^(\\d+(\\.\\d+)?)$")) {
-                              if (!mine.getBlockPaletteRaw()
-                                  .updateKey(pair.first(), textEntry)) {
+                              if (!mine.getBlockPaletteRaw().updateKey(pair.first(), textEntry)) {
                                 Main.log("Failed to update block: " + pair.first().toString());
                               }
                               mine.save();
@@ -183,5 +181,4 @@ public class MinePaletteMenu extends InventoryGUI {
               Main.getGuiManager().openGUI(new ModifyMineMenu(mine), player);
             });
   }
-
 }

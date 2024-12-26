@@ -1,5 +1,8 @@
 package me.mortaldev.JBMines.utils;
 
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import me.mortaldev.JBMines.records.Pair;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -7,14 +10,11 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class TextUtil {
 
   /**
-   * Formats the given string by trimming, removing edge special characters, and replacing non-word characters with underscores.
+   * Formats the given string by trimming, removing edge special characters, and replacing non-word
+   * characters with underscores.
    *
    * @param string the input string to be formatted
    * @return the formatted string
@@ -222,7 +222,7 @@ public class TextUtil {
     int i = 0;
     while (i < str.length()) {
       if (i <= str.length() - target.length()
-          && str.substring(i, i + target.length()).toString().equals(target)) {
+          && str.substring(i, i + target.length()).equals(target)) {
         if (i + target.length() + steps <= str.length()) {
           newStr.append(str, i + target.length(), i + target.length() + steps);
           newStr.append(target);

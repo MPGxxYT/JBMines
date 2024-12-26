@@ -1,11 +1,9 @@
 package me.mortaldev.JBMines.utils;
 
+import java.util.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class Utils {
 
