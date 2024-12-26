@@ -19,8 +19,8 @@ Mine Config:
   ~ Chamber Design
  - Reset Type
   ~ Timer *
-  ~ Percent
-  ~ Combo
+  ~ Percent *
+  ~ Combo *
   ~ Sync
 ```
 
